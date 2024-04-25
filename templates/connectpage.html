@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Page</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center; /* Center content horizontally */
+            align-items: center; /* Center content vertically */
+            overflow: hidden;
+        }
+
+        .content {
+            text-align: center;
+            color: #efdede; /* Text color */
+            backdrop-filter: blur(5px); /* Optional: adds a blur effect to the background */
+            padding: 100px;
+            position: relative;
+            z-index: 1; /* Ensure content is on top of the background */
+        }
+
+        .glass-box {
+            background-color: rgba(255, 192, 203, 0.4); /* Transparent pink color */
+            padding: 30px 30px;
+            border-radius: 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Card-like shadow */
+            display: inline-block;
+        }
+
+        h1 {
+            font-size: 4em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Example of a font family */
+            margin: 10px 0 20px; /* Adjust the margin */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        input {
+            width: 80%; /* Make input boxes wider */
+            padding: 20px 60px;
+            margin: 10px 0;
+            border: 1px solid #ccc; /* Border color */
+            border-radius: 10px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        button {
+            padding: 20px 50px;
+            margin: 10px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            background-color: rgb(235, 41, 167); /* Pink color */
+            color: #fff; /* Text color */
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Card-like shadow */
+            transition: background-color 0.3s ease-in-out; /* Smooth color transition */
+        }
+
+        button:hover {
+            background-color: rgb(211, 0, 122); /* Darker pink on hover */
+        }
+
+        /* Add an additional div for the background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Send to the back */
+            pointer-events: none; /* Allow clicks to go through to elements behind it */
+        }
+        nav li {
+            float: left;
+        }
+
+        nav li a {
+            display: block;
+            color: rgb(224, 217, 217);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .navbar {
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.2); /* Transparent white color */
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-end; /* Align links to the right */
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: rgb(224, 217, 217);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.5); /* Lighten on hover */
+            color: #000; /* Change text color on hover */
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="background">
+        <img id="backgroundGif" src="/statics/PixelJeff.gif" style="width: 100%; height: 100%; object-fit: cover;" alt="Background GIF">
+    </div>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="#">Connect</a>
+        <a href="{{ url_for('attack') }}">Attack</a>
+    </div>
+
+    <div class="content">
+        <div class="glass-box">
+            <h1>Connect</h1><br><br>
+            <form id="connectForm" onsubmit="return connect(event)">
+                <label for="yourUsername">Username</label><br>
+                <input type="text" id="yourUsername" name="yourUsername" style="width: 90%;"><br>
+    
+                <label for="otherUsername">User you want to Connect With</label><br>
+                <input type="text" id="otherUsername" name="otherUsername" style="width: 90%;"><br>
+    
+                <hr>
+    
+                <button id="connectButton" type="submit">Connect</button>
+            </form>
+    
+            <div id="result" style="display: none;">
+                <h2>Connection Result</h2>
+                <p id="resultMessage"></p>
+                <p id="sharedKey"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        var gif = document.getElementById('backgroundGif');
+        gif.style.webkitAnimationPlayState = 'paused';
+        gif.style.animationPlayState = 'paused';
+    });
+
+    async function connect(event) {
+        event.preventDefault();
+
+        var yourUsername = document.getElementById('yourUsername').value;
+        var otherUsername = document.getElementById('otherUsername').value;
+
+        try {
+            const response = await fetch('/connect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'yourUsername': yourUsername,
+                    'otherUsername': otherUsername,
+                }),
+            });
+
+            const data = await response.json();
+
+            var resultDiv = document.getElementById('result');
+            var resultMessage = document.getElementById('resultMessage');
+            var sharedKey = document.getElementById('sharedKey');
+
+            if (data.connectionsuccess == true) {
+                resultMessage.textContent = 'Connection successful!';
+                sharedKey.textContent = 'Shared key: ' + data.shared_key;
+            } else {
+                resultMessage.textContent = 'Connection failed. ' + data.message;    
+                sharedKey.textContent = '';
+            }
+
+            resultDiv.style.display = 'block';
+
+        } catch (error) {
+            console.error('Error connecting:', error);
+        }
+    }
+    </script>
+</body>
+</html>

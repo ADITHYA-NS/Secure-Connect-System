@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bloms</title>
+        <style>
+            body, html {
+                height: 100%;
+                margin: 0;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: flex-start; /* Align content to the left */
+                align-items: center;
+                overflow: hidden;
+            }
+    
+            video {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                min-width: 100%;
+                min-height: 100%;
+                width: auto;
+                height: auto;
+                z-index: -1;
+                transform: translate(-50%, -50%);
+            }
+    
+            .content {
+                position: relative;
+                text-align: left;
+                color: rgba(255, 255, 255, 0.8); /* Transparent white color */
+                padding: 50px;
+                border-radius: 50px; /* Rounded corners */
+                background: rgba(0, 0, 0, 0.3); /* Semi-transparent black background */
+                margin-left: 50px; /* Adjust the space from the left */
+            }
+    
+            h1 {
+                font-size: 3em;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Example of a font family */
+                margin: 0;
+            }
+    
+            input {
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+                border: none;
+                border-radius: 5px;
+            }
+    
+            button {
+                padding: 10px 20px;
+                margin: 10px;
+                font-size: 18px;
+                border: none;
+                cursor: pointer;
+                background-color: rgb(0, 213, 255); /* Neon blue color */
+                color: #fff; /* Text color */
+                border-radius: 5px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Card-like shadow */
+                transition: none; /* Disable hover transition */
+            }
+    
+            div.display-box {
+                margin-top: 20px;
+            }
+    
+            div.display-box > div {
+                margin-bottom: 10px;
+            }
+    
+            p {
+                position: absolute;
+                bottom: 20px; /* Adjust bottom position */
+                text-align: center;
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 18px;
+                width: 100%; /* Center warning message */
+            }
+    
+            .warning {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+    
+            nav li {
+                float: left;
+            }
+    
+            nav li a {
+                display: block;
+                color: rgb(224, 217, 217);
+                text-align: center;
+                padding: 14px 16px;
+                text-decoration: none;
+            }
+            .navbar {
+                overflow: hidden;
+                background-color: rgba(255, 255, 255, 0.2); /* Transparent white color */
+                position: fixed;
+                top: 0;
+                width: 100%;
+                z-index: 1000;
+                display: flex;
+                justify-content: flex-end; /* Align links to the right */
+            }
+            
+    
+            .navbar a {
+                float: left;
+                display: block;
+                color: rgb(224, 217, 217);
+                text-align: center;
+                padding: 14px 16px;
+                text-decoration: none;
+                margin-right: 20px;
+            }
+    
+            .navbar a:hover {
+                background-color: rgba(255, 255, 255, 0.5); /* Lighten on hover */
+                color: #000; /* Change text color on hover */
+            }
+    
+            .content {
+                position: relative;
+                text-align: left;
+                color: rgba(255, 255, 255, 0.8); /* Transparent white color */
+                padding: 100px 50px 50px; /* Adjust top padding to accommodate the navbar */
+                border-radius: 50px; /* Rounded corners */
+                background: rgba(0, 0, 0, 0.3); /* Semi-transparent black background */
+                margin-left: 50px; /* Adjust the space from the left */
+            }
+    
+        </style>
+    </head>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <!-- Links to different pages -->
+        <a href="#">Home</a>
+        <a href="{{ url_for('connectpage') }}" id="connectLink">Connect</a>
+
+        <a href="{{ url_for('attack') }}">Attack</a>
+        <!-- Add more links as needed -->
+    </div>
+
+    <video autoplay muted loop>
+        <source src="/statics/main.mp4" type="video/mp4">
+    </video>
+    
+    <div class="content">
+        <h1>Welcome</h1>
+        <form id="connectForm">
+            <label for="username">Username</label><br>
+            <input type="text" id="username" name="username"><br>
+            <button type="button" onclick="identifier_generator()">Request identifier</button>
+        </form>
+
+        <!-- Display box for the entered username and identifier -->
+        <div class="display-box">
+            <h3>Display:</h3>
+            <div>Username: <span id="displayUsername"></span></div>
+            <div>Public Identifier: <span id="displayIdentifier"></span></div>
+            <div>Private Key: <span id="displayPrivateKey"></span></div>
+        </div>
+    </div>
+    
+    <p class="warning"><span style="font-size: 24px;">⚠</span> <b>For VANET system access, please make sure you have the necessary security clearance and authentication credentials.</b></p>
+
+    <script>
+    async function identifier_generator() {
+    var username = document.getElementById('username').value;
+    var displayUsername = document.getElementById('displayUsername');
+    var displayIdentifier = document.getElementById('displayIdentifier');
+    var displayPrivateKey = document.getElementById('displayPrivateKey');
+
+    try {
+        const response = await fetch('/identifier_generator', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'username=' + encodeURIComponent(username),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            displayUsername.innerText = username;
+            displayIdentifier.innerText = JSON.stringify(result.identifier);
+            displayPrivateKey.innerText = JSON.stringify(result.private_key);
+            alert('Submitted!');
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error connecting to the server:', error);
+    }
+}
+    </script>
+</body>
+</html>

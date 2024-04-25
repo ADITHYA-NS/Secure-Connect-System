@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attack Page</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            /* Set background image */
+            background-image: url('../statics/hack.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* Add any other background properties as needed */
+        }
+
+        .form-container {
+            text-align: center; 
+            background: rgba(244, 244, 246, 0.5);
+            padding: 20px 30px 40px 50px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            max-width: 250px; 
+            text-align: center; 
+            position: absolute;
+            top: 50%;
+            right: 60%;
+            transform: translate(-50%, -50%);
+            height:600px;
+        }
+        
+        nav li a {
+            display: block;
+            color: rgb(224, 217, 217);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .navbar {
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.2); /* Transparent white color */
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-start; /* Align links to the right */
+        }
+        
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: rgb(224, 217, 217);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        input {
+            max-width: 600px;
+            top: 400px;
+            padding: 10px;
+            margin: 100px 1000px;
+            border: none;
+            border-radius: 5px;
+        }
+        .navbar a:hover {
+            background-color: rgba(255,255,255,0.5); /* Lighten on hover */
+            color: #000; }/* Change text color on hover */
+    
+        button {
+            cursor: pointer;
+            background-color: #09053b; /* Dark blue color */
+            color: #fff; /* White text */
+            font-size: 40px;
+            transition: background-color 0.3s ease;
+            padding: 10px 200px 0px 50px;
+            border: none;
+            border-radius: 10px;
+            max-width: 30px;
+        }
+ 
+
+        button:hover {
+            background-color: #1a2b3c; 
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <!-- Links to different pages -->
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('connectpage') }}">Connect</a>
+        <a href="#">Attack</a>
+    </div>
+
+    <div class="form-container">
+        <h1>🔓 Attack Page</h1>
+        <form id="attackForm">
+            <h1>Orginal Matrix:</h1>
+            <div id="identifierInputs">
+               
+            </div>
+            <button type="button" onclick="initiateAttack()">ATTACK</button>
+        </form>
+    </div>
+    <!--<lable for="identifier" style="top: 400px; margin: 0 1000px;">Check:</lable>
+    <input type="text" id="checkmatrix" placeholder="Enter Identifier:">
+    <button type="submit" onsubmit="check()">Submit</button>
+    <div id="check"></div>-->
+
+
+    <script>
+        var output=document.getElementById('identifierInputs')
+        var check=document.getElementById('check')
+        async function attack() {
+            try {
+                const response = await fetch('/perform_attack', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    output.innerText=JSON.stringify(result.attack_result)
+                    console.log('Attack result:', result.attack_result);
+                    
+                } else {
+                    console.error('Error:', result.message);
+                    alert('Error initiating attack. Check the console for details.');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error connecting to the server. Check the console for details.');
+            }
+        }
+
+        function initiateAttack() {
+            alert('Attack initiated!');
+            attack(); 
+        }
+    </script>
+</body>
+</html>
