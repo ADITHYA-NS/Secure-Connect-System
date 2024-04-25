@@ -1,0 +1,5 @@
+Python 3.10.7
+Flask 3.0.0
+Werkzeug 3.0.1
+sqlite3
+
